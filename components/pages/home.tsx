@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, StyleSheet, Image, ImageBackground, ScrollView, Alert } from 'react-native';
 import { Text, TextInput, Button, Icon } from 'react-native-paper';
 import Card from '../card';
-import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, {Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { locations } from '../locations';
 

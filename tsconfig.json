@@ -6,7 +6,8 @@
       "@/*": [
         "./*"
       ]
-    }
+    },
+    "useUnknownInCatchVariables": false
   },
   "include": [
     "**/*.ts",

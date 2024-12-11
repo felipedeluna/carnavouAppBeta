@@ -1,10 +1,8 @@
 import * as React from 'react';
-import { View, StyleSheet, Image, ImageBackground, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, Image, ImageBackground, ScrollView, } from 'react-native';
 import { Text, TextInput, Button, Icon } from 'react-native-paper';
 import Card from '../card';
-import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import * as Location from 'expo-location';
-import { locations } from '../locations';
+import axios from 'axios';
 
 const INITIAL_REGION = {
     latitude: -23.5226251,
@@ -13,112 +11,87 @@ const INITIAL_REGION = {
     longitudeDelta: 0.2
 };
 
-export default function home() {
+export default function Home() {
     const [text, setText] = React.useState("");
-    const mapRef = React.useRef<any>();
+    const [blocos, setBlocos] = React.useState([]);
+    const [loading, setLoading] = React.useState(false);
+    const [error, setError] = React.useState<string | null>(null);
 
-    const getLocation = async () => {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-            alert('Permissão negada!');
-            return;
+    const fetchBlocos = async (searchTerm: string) => {
+        setLoading(true);
+        setError(null); // Limpar erros anteriores
+        try {
+            console.log(`Iniciando a busca pelos blocos com o termo: ${searchTerm}`);
+            const response = await axios.get(`https://carnavou.onrender.com/blocos/nomes?nomes=${searchTerm}`);
+            console.log('Dados recebidos:', response.data);
+            setBlocos(response.data); // Atualiza o estado com os dados recebidos
+        } catch (error) {
+            console.error('Erro ao fazer a requisição:', error);
+            setError('Erro ao carregar os blocos');
+        } finally {
+            setLoading(false);
         }
-
-        const location = await Location.getCurrentPositionAsync({});
-        console.log(location);
     };
 
-    getLocation();
+    React.useEffect(() => {
+        fetchBlocos(''); // Carrega os blocos ao inicializar
+    }, []);
 
     return (
         <View>
             <View style={styles.header}>
-                <Image
-                    source={require('../../assets/images/carnavou-logo-nav.png')}
-                />
+                <Image source={require('../../assets/images/carnavou-logo-nav.png')} />
             </View>
             <ScrollView style={{ marginBottom: 60 }}>
                 <ImageBackground
-                    source={require('../../assets/images/banner-home.png')} // Caminho da imagem de fundo
+                    source={require('../../assets/images/banner-home.png')}
                     style={styles.imageBackground}
-                    resizeMode='cover'
+                    resizeMode="cover"
                 >
                     <View style={styles.container}>
                         <Text style={styles.whiteText}>
-                            <Text variant="displaySmall" style={styles.whiteText}>
-                                Eu quero é botar{'\n'}
-                                <Text style={[styles.boldText, styles.whiteText]}>
-                                    meu bloco na rua
-                                </Text>
-                            </Text>
-                            {'\n'}
-                            <Text style={styles.whiteText}>
-                                Os <Text style={[styles.boldText, styles.whiteText]}>blocos de São Paulo</Text> na palma da sua mão.
-                            </Text>
+                            Eu quero é botar meu bloco na rua!
                         </Text>
                     </View>
                 </ImageBackground>
-                <View style={[styles.mainContainer]}>
-                    <View style={[styles.searchContainer]}>
-                        <Text variant='titleMedium' style={styles.boldText}>Pesquise pelo bloco</Text>
-                        <TextInput
-                            label="Pesquise pelo nome do bloco..."
-                            value={text}
-                            onChangeText={text => setText(text)}
-                            style={[styles.searchInput]}
-                        />
-                        <View style={[styles.searchButtonsContainer]}>
-                            <Button style={[styles.primaryButton, { flex: 3 }]} icon="text-search" mode="contained" onPress={() => console.log('Pressed')}>
-                                Pesquisar
-                            </Button>
-                            <Button style={[styles.filterButton]} icon="filter-menu" mode="outlined" onPress={() => console.log('Pressed')}>
-                                Filtrar
-                            </Button>
-                        </View>
-                    </View>
-                    <Text variant="displaySmall" style={[styles.agendaText]}>Agenda 2024</Text>
-                    <Text variant="titleLarge" style={[styles.boldText, styles.serifText, { marginBottom: 10 }]}>Pós Carnaval 🎉</Text>
-                    <Text variant='bodyLarge' style={[{ marginBottom: 10, fontWeight: '100', color: '#45434C' }]}>18/02</Text>
-                    <Card />
-                    <Card />
-                    <Card />
-                    <Button style={[styles.primaryButton]} icon="text-search" mode="contained" onPress={() => console.log('Pressed')}>
-                        Próximos blocos
-                    </Button>
-                </View>
-                <View style={[styles.mapsContainer]}>
 
-                    <View>
-                        <Text variant='titleLarge' style={[styles.serifText, styles.boldText]}>
-                            Cadê o bloco?
-                        </Text>
-                        <Text style={[styles.serifText]}>
-                             <Text style={[styles.boldText]}>Mapa dos blocos</Text> de São Paulo pra {'\n'}nenhum folião ficar perdido!
-                        </Text>
-                    </View>
-
-                    <View style={[styles.mapsContainer]}>
-                    <MapView
-                        style={StyleSheet.absoluteFill}
-                        provider={PROVIDER_GOOGLE}
-                        initialRegion={INITIAL_REGION}
-                        showsUserLocation={true}
-                        showsMyLocationButton={true}
-                        ref={mapRef}
+                <View style={styles.mainContainer}>
+                    <TextInput
+                        value={text}
+                        onChangeText={setText}
+                        placeholder="Pesquise pelo nome do bloco..."
+                        style={styles.searchInput}
+                    />
+                    <Button
+                        onPress={() => fetchBlocos(text)}
+                        icon="text-search"
+                        mode="contained"
                     >
-                        {locations.map((marker, index) => (
-                            <Marker key={index} coordinate={marker} />
-                        ))}
-                    </MapView>
+                        Pesquisar
+                    </Button>
 
-                    </View>
-                    
+                    {loading && <Text>Carregando blocos...</Text>}
+                    {error && <Text style={styles.errorText}>{error}</Text>}
+
+                    {blocos.length > 0 ? (
+                        blocos.map((bloco: any, index: number) => (
+                            <Card
+                                key={index}
+                                nome={bloco.Nome}
+                                data={bloco.Data}
+                                hora={bloco.Concentracao}
+                                endereco={bloco.Local}
+                            />
+                        ))
+                    ) : (
+                        !loading && <Text>Nenhum bloco encontrado.</Text>
+                    )}
                 </View>
-
             </ScrollView>
         </View>
-    )
+    );
 }
+
 
 const styles = StyleSheet.create({
     header: {
@@ -185,5 +158,10 @@ const styles = StyleSheet.create({
         paddingVertical: 60,
         backgroundColor: '#E3EB89',
         gap: 18
+    },
+    errorText: {
+        color: 'red',
+        fontSize: 16,
+        textAlign: 'center',
     }
 })

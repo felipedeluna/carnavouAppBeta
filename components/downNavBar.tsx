@@ -5,6 +5,7 @@ import Home from './pages/home'
 import MinhaLista from './pages/minhaLista';
 import Sobre from './pages/sobre';
 
+
 const HomeRoute = () => <Home/>;
 
 const ListRoute = () => <MinhaLista/>;

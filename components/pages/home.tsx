@@ -1,6 +1,9 @@
 import * as React from 'react';
 import { View, StyleSheet, Image, ImageBackground, ScrollView, } from 'react-native';
 import { Text, TextInput, Button, Icon } from 'react-native-paper';
+import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import * as Location from 'expo-location';
+import { locations } from '../locations';
 import Card from '../card';
 import axios from 'axios';
 
@@ -16,6 +19,37 @@ export default function Home() {
     const [blocos, setBlocos] = React.useState([]);
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState<string | null>(null);
+    const mapRef = React.useRef<any>();
+
+    React.useEffect(() => {
+        let subscriber: Location.LocationSubscription | null = null;
+
+        const startWatching = async () => {
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                alert('Permissão negada!');
+                return;
+            }
+
+            subscriber = await Location.watchPositionAsync(
+                {
+                    accuracy: Location.Accuracy.High,
+                    timeInterval: 100000, // Atualiza a cada 10 segundos
+                    distanceInterval: 200, // Ou quando o usuário se mover 50 metros
+                },
+                (location) => {
+                    console.log(location);
+                }
+            );
+        };
+
+        startWatching();
+
+        return () => {
+            // Cancela o monitoramento ao desmontar o componente
+            subscriber?.remove();
+        };
+    }, []);
 
     const fetchBlocos = async (searchTerm: string) => {
         setLoading(true);
@@ -87,9 +121,36 @@ export default function Home() {
                         !loading && <Text>Nenhum bloco encontrado.</Text>
                     )}
                 </View>
+
+                <View style={[styles.mapsContainer]}>
+                    <View>
+                        <Text variant='titleLarge' style={[styles.serifText, styles.boldText]}>
+                            Cadê o bloco?
+                        </Text>
+                        <Text style={[styles.serifText]}>
+                            <Text style={[styles.boldText]}>Mapa dos blocos</Text> de São Paulo pra {'\n'}nenhum folião ficar perdido!
+                        </Text>
+                    </View>
+
+                    <View style={[styles.mapsContainer]}>
+                        <MapView
+                            style={StyleSheet.absoluteFill}
+                            provider={PROVIDER_GOOGLE}
+                            initialRegion={INITIAL_REGION}
+                            showsUserLocation={true}
+                            showsMyLocationButton={true}
+                            ref={mapRef}
+                        >
+                            {locations.map((marker, index) => (
+                                <Marker key={index} coordinate={marker} />
+                            ))}
+                        </MapView>
+                    </View>
+                </View>
             </ScrollView>
         </View>
     );
+
 }
 
 

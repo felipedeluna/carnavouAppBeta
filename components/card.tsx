@@ -48,60 +48,73 @@ const Card: React.FC<CardProps> = ({ nome, data, hora, endereco }) => {
 
 const styles = StyleSheet.create({
   card: {
-    margin: 10,
-    padding: 15,
     backgroundColor: '#fff',
     borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
     elevation: 5,
   },
   cardTitle: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 16,
   },
   titleText: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#682B7D',
   },
   saveButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#E3EB89',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
   },
   saveButtonText: {
     fontSize: 16,
-    color: '#45434C',
+    color: '#333',
+    marginRight: 4,
+  },
+  icon: {
+    width: 24,
+    height: 24,
   },
   infoCard: {
-    marginTop: 10,
+    flexDirection: 'row',
+    gap: 64,
+    marginBottom: 16,
   },
   infoItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 5,
   },
   infoText: {
-    marginLeft: 5,
-    fontSize: 14,
-    color: '#45434C',
+    fontSize: 16,
+    marginLeft: 8,
+    color: '#555',
   },
   addressCard: {
-    marginTop: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },
   addressContent: {
-    flexDirection: 'row',
-    marginLeft: 5,
+    marginLeft: 8,
   },
   addressLink: {
-    color: '#1E90FF',
-    fontSize: 14,
+    color: '#000',
+    fontSize: 16,
+    textDecorationLine: 'underline',
+  },
+  addressText: {
+    fontSize: 16,
+    color: '#555',
   },
 });
-
 export default Card;

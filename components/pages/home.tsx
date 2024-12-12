@@ -1,13 +1,13 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useContext, useEffect, useRef } from 'react';
 import { View, StyleSheet, Image, ImageBackground, ScrollView, } from 'react-native';
 import { Text, TextInput, Button, Icon } from 'react-native-paper';
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { locations } from '../locations';
-import Card from '../card';
+import Card, { CardProps } from '../card';
 import axios from 'axios';
-import { MyContext } from '../../components/context';
+import MyContext from '../../components/context';
 
 
 const INITIAL_REGION = {
@@ -18,13 +18,14 @@ const INITIAL_REGION = {
 };
 
 export default function Home() {
-    const [text, setText] = React.useState("");
-    const [blocos, setBlocos] = React.useState([]);
-    const [loading, setLoading] = React.useState(false);
-    const [error, setError] = React.useState<string | null>(null);
-    const mapRef = React.useRef<any>();
+    const { savedCards, saveCard } = useContext(MyContext) || { savedCards: [], saveCard: () => { } };
+    const [text, setText] = useState("");
+    const [blocos, setBlocos] = useState<CardProps[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const mapRef = useRef<any>();
 
-    React.useEffect(() => {
+    useEffect(() => {
         let subscriber: Location.LocationSubscription | null = null;
 
         const startWatching = async () => {
@@ -41,7 +42,7 @@ export default function Home() {
                     distanceInterval: 200, // Ou quando o usuário se mover 200 metros
                 },
                 (location) => {
-                    console.log(location);
+                    console.log("Localização atual:", location);
                 }
             );
         };
@@ -49,7 +50,6 @@ export default function Home() {
         startWatching();
 
         return () => {
-            // Cancela o monitoramento ao desmontar o componente
             subscriber?.remove();
         };
     }, []);
@@ -58,26 +58,39 @@ export default function Home() {
         setLoading(true);
         setError(null); // Limpar erros anteriores
         try {
-            console.log(`Iniciando a busca pelos blocos com o termo: ${searchTerm}`);
+            console.log(`Buscando blocos com o termo: ${searchTerm}`);
             const response = await axios.get(`https://carnavou.onrender.com/blocos/nomes?nomes=${searchTerm}`);
-            console.log('Dados recebidos:', response.data);
+            console.log('Blocos recebidos:', response.data);
             setBlocos(response.data); // Atualiza o estado com os dados recebidos
         } catch (error) {
-            console.error('Erro ao fazer a requisição:', error);
+            console.error('Erro na requisição:', error);
             setError('Erro ao carregar os blocos');
         } finally {
             setLoading(false);
         }
     };
 
-    /*     React.useEffect(() => {
-            fetchBlocos(''); // Carrega os blocos ao inicializar
-        }, []); */
+    const onSave = async (card: CardProps) => {
+        console.log("Botão de salvar pressionado!");
+        console.log("Salvando card onSave home:", card);
 
-    const [savedCardIds, setSavedCardIds] = useState<string[]>([]); // Array to store saved card IDs
-    const onSave = (cardName: string) => {
-        setSavedCardIds([...savedCardIds, cardName]);
+        if (saveCard) {
+            try {
+                const salvos: any = await saveCard(card);
+
+            } catch (error) {
+                console.error("Erro ao salvar o card saveCard error:", error, card);
+            }
+        } else {
+            console.error("Função saveCard não está definida!");
+        }
     };
+
+
+    useEffect(() => {
+        console.log("Cards atualizados:", savedCards);
+    }, [savedCards]);
+
     return (
         <View>
             <View style={styles.header}>
@@ -125,7 +138,7 @@ export default function Home() {
                                         data={bloco.Data}
                                         hora={bloco.Concentracao}
                                         endereco={bloco.Local}
-                                        onSave={onSave}
+                                        onSave={(card) => onSave(card)}
                                     />
                                 ))
                             ) : (

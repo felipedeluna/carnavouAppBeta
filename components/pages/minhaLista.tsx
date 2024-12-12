@@ -1,66 +1,86 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { View, Text } from 'react-native';
+import React, { useContext, useEffect } from 'react';
+import { View, Text, ScrollView, StyleSheet, Image } from 'react-native';
 import MyContext from '../../components/context';
 import { Appbar } from 'react-native-paper';
 import Card, { CardProps } from '../card';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { useNavigation, NavigationProp } from '@react-navigation/native';  // Importação necessária para a navegação
+import DownNavBar from '../downNavBar';  // Importação do DownNavBar
 
 const MyListScreen = () => {
-    const { savedCardIds } = useContext(MyContext);
-    const [savedCardsData, setSavedCardsData] = useState<CardProps[]>([]);
-    const onSave = (cardData: CardProps) => {
-        // Implement logic to save card data
-        saveCardToStorage(cardData);
-    };
+const { savedCards, removeCard } = useContext(MyContext) || { savedCards: [], removeCard: () => { } };
+const navigation = useNavigation<NavigationProp<any, any>>();  // Hook de navegação
 
-
-    const fetchSavedCards = async () => {
-        const savedCardsData = await fetchCardsFromStorage(savedCardIds);
-        setSavedCardsData(savedCardsData);
-    }; const fetchCardsFromStorage = async (savedCardIds: string[]) => {
-        const storageCards = await AsyncStorage.getItem('savedCards');
-        const parsedCards = storageCards ? JSON.parse(storageCards) : {};
-
-        const savedCardsData = savedCardIds.map((cardId) => {
-            return parsedCards[cardId];
-        });
-
-        return savedCardsData;
-    };
-    const saveCardToStorage = async (cardData: any) => {
-        const storageCards = await AsyncStorage.getItem('savedCards');
-        const parsedCards = storageCards ? JSON.parse(storageCards) : {};
-
-        parsedCards[cardData.id] = cardData;
-
-        await AsyncStorage.setItem('savedCards', JSON.stringify(parsedCards));
-    };
-
+    // Log saved cards on load
     useEffect(() => {
-        fetchSavedCards();
-    }, []);
+        console.log("Carregando lista de blocos salvos...");
+        if (savedCards.length === 0) {
+            console.log("Nenhum bloco encontrado na lista.");
+        } else {
+            console.log("Blocos carregados:", savedCards);
+        }
+    }, [savedCards]);
 
     return (
-        <View>
+         <View style={{ flex: 1 }}> 
             <Appbar.Header>
-                <Appbar.Content title="Minha Lista" style={{ alignItems: 'center' }} />
+            <View style={styles.header}>
+                <Image source={require('../../assets/images/carnavou-logo-nav.png')} />
+            </View>
             </Appbar.Header>
-            {savedCardsData.length > 0 ? (
-                savedCardsData.map((cardData, index) => (
-                    <Card
-                        key={index}
-                        nome={cardData.nome}
-                        data={cardData.data}
-                        hora={cardData.hora}
-                        endereco={cardData.endereco}
-                        onSave={() => { }} // Disable saving functionality for saved cards (optional)
-                    />
-                ))
-            ) : (
-                <Text>Nenhum bloco salvo ainda.</Text>
-            )}
+            <ScrollView style={styles.mainContainer}>
+            <Text style={styles.title}>MINHA LISTA</Text>
+                    <View style={{ flex: 1 }}> 
+                        {savedCards.length > 0 ? (
+                        savedCards.map((cardData, index) => (
+                            <Card
+                                key={index}
+                                nome={cardData.nome}
+                                data={cardData.data}
+                                hora={cardData.hora}
+                                endereco={cardData.endereco}
+                                onRemove={() => removeCard(cardData.nome)}
+                            />
+                        ))
+                    ) : (
+                        <Text>Nenhum bloco salvo ainda.</Text>
+                    )}
+                    </View>
+            </ScrollView>
         </View>
-    )
-}
+    );
+};
+
+const styles = StyleSheet.create({
+    mainContainer: {
+        marginTop: 20,
+        marginLeft: 26,
+        marginRight: 26,
+        marginBottom: 12,
+    },
+    header: {
+        width: '100%',
+        backgroundColor: '#EBFF01',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+        paddingTop: 38,
+        marginBottom: 20,
+    },
+    title: {
+        fontSize: 24,  
+        fontWeight: 'bold',  
+        color: '#682B7D',  
+        textAlign: 'center',
+        marginTop:28,
+        marginBottom: 20,
+
+    },
+    saveButton: {
+        padding: 200,
+    },
+    saveIcon: {
+        padding: 30,
+    }
+})
+
 export default MyListScreen;

@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Linking, Button } from 'react-native';
-import CardContent from 'react-native-paper/lib/typescript/components/Card/CardContent';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export interface CardProps {
@@ -8,49 +7,57 @@ export interface CardProps {
   data: string;
   hora: string;
   endereco: string;
-  onSave: (cardName: string) => void
+  onSave?: (card: { nome: string; data: string; hora: string; endereco: string }) => void;
+  onRemove?: () => void;
 }
 
-
-const Card: React.FC<CardProps> = ({ nome, data, hora, endereco, onSave }) => {
+const Card: React.FC<CardProps> = ({ nome, data, hora, endereco, onSave, onRemove }) => {
   return (
     <View style={styles.card}>
       <View style={styles.cardContent}>
         <View style={styles.cardTitle}>
           <Text style={styles.titleText} numberOfLines={2} ellipsizeMode="tail">{nome}</Text>
-          <TouchableOpacity style={styles.saveButton}>
-            <TouchableOpacity onPress={() => onSave(nome)} style={{ backgroundColor: 'transparent' }}>
-              <View style={{ backgroundColor: '#E3EB89', padding: 10 }} />
-            </TouchableOpacity>
-            <MaterialCommunityIcons name="plus" size={24} color="#45434C" />
-          </TouchableOpacity>
 
+          {/* Botão de Salvar */}
+          {onSave && (
+            <TouchableOpacity
+              style={styles.saveButton}
+              onPress={() => {
+                console.log("Botão de salvar clicado!");
+                onSave({ nome, data, hora, endereco });
+              }}
+            >
+              <MaterialCommunityIcons name="plus" size={24} color="#45434C" style={styles.saveIcon} />
+            </TouchableOpacity>
+          )}
+          {/* Botão de Remover */}
+          {onRemove && (
+            <TouchableOpacity
+              style={styles.saveButton}
+              onPress={() => {
+                console.log("Botão de remover clicado!");
+                if (onRemove) {
+                  onRemove();
+                }
+              }}
+            >
+              <MaterialCommunityIcons name="trash-can" size={24} color="#45434C" />
+            </TouchableOpacity>
+          )}
         </View>
         <View style={styles.infoCard}>
-          <View style={styles.infoItem}>
-            <MaterialCommunityIcons name="calendar" size={24} color="#45434C" />
-            <Text style={styles.infoText}>{data}</Text>
-          </View>
-          <View style={styles.infoItem}>
-            <MaterialCommunityIcons name="clock-time-three-outline" size={24} color="#45434C" />
-            <Text style={styles.infoText}>{hora}</Text>
-          </View>
+          <MaterialCommunityIcons name="calendar" size={24} color="#45434C" />
+          <Text style={[styles.infoText, { marginRight: 40 }]}>{data}</Text>
+          <MaterialCommunityIcons name="clock-time-three-outline" size={24} color="#45434C" />
+          <Text style={styles.infoText}>{hora}</Text>
         </View>
         <View style={styles.addressCard}>
           <MaterialCommunityIcons name="map-marker-outline" size={24} color={"#45434C"} />
-          <View style={styles.addressContent}>
-            <TouchableOpacity>
-              <Text
-                style={styles.addressLink}
-                onPress={() => Linking.openURL(`https://www.google.com/maps/search/${endereco}`)}
-              >
-                {endereco}
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity onPress={() => Linking.openURL(`https://www.google.com/maps/search/${endereco}`)}>
+            <Text style={styles.addressLink}>{endereco}</Text>
+          </TouchableOpacity>
         </View>
       </View>
-
     </View>
   );
 };
@@ -66,7 +73,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
-    height: 200,
+    height: 220,
   },
   cardContent: {
     flex: 1,
@@ -90,22 +97,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#E3EB89',
-    paddingHorizontal: 8,
+    paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 4,
-  },
-  saveButtonText: {
-    fontSize: 16,
-    color: '#333',
-    marginRight: 4,
+    maxWidth: '20%',
   },
   icon: {
     width: 24,
     height: 24,
   },
+  saveIcon: {
+    paddingHorizontal: 8,
+  },
   infoCard: {
     flexDirection: 'row',
-    gap: 64,
+    gap: 8,
     marginBottom: 16,
   },
   infoItem: {
@@ -135,4 +141,5 @@ const styles = StyleSheet.create({
     color: '#555',
   },
 });
+
 export default Card;

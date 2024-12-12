@@ -1,11 +1,14 @@
 import * as React from 'react';
+import { useState, useContext, useEffect, useRef } from 'react';
 import { View, StyleSheet, Image, ImageBackground, ScrollView, } from 'react-native';
 import { Text, TextInput, Button, Icon } from 'react-native-paper';
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { locations } from '../locations';
-import Card from '../card';
+import Card, { CardProps } from '../card';
 import axios from 'axios';
+import MyContext from '../../components/context';
+
 
 const INITIAL_REGION = {
     latitude: -23.5226251,
@@ -15,13 +18,14 @@ const INITIAL_REGION = {
 };
 
 export default function Home() {
-    const [text, setText] = React.useState("");
-    const [blocos, setBlocos] = React.useState([]);
-    const [loading, setLoading] = React.useState(false);
-    const [error, setError] = React.useState<string | null>(null);
-    const mapRef = React.useRef<any>();
+    const { savedCards, saveCard } = useContext(MyContext) || { savedCards: [], saveCard: () => { } };
+    const [text, setText] = useState("");
+    const [blocos, setBlocos] = useState<CardProps[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const mapRef = useRef<any>();
 
-    React.useEffect(() => {
+    useEffect(() => {
         let subscriber: Location.LocationSubscription | null = null;
 
         const startWatching = async () => {
@@ -34,11 +38,11 @@ export default function Home() {
             subscriber = await Location.watchPositionAsync(
                 {
                     accuracy: Location.Accuracy.High,
-                    timeInterval: 100000, // Atualiza a cada 10 segundos
-                    distanceInterval: 200, // Ou quando o usuário se mover 50 metros
+                    timeInterval: 100000, // Atualiza a cada 100 segundos
+                    distanceInterval: 200, // Ou quando o usuário se mover 200 metros
                 },
                 (location) => {
-                    console.log(location);
+                    console.log("Localização atual:", location);
                 }
             );
         };
@@ -46,7 +50,6 @@ export default function Home() {
         startWatching();
 
         return () => {
-            // Cancela o monitoramento ao desmontar o componente
             subscriber?.remove();
         };
     }, []);
@@ -55,21 +58,38 @@ export default function Home() {
         setLoading(true);
         setError(null); // Limpar erros anteriores
         try {
-            console.log(`Iniciando a busca pelos blocos com o termo: ${searchTerm}`);
+            console.log(`Buscando blocos com o termo: ${searchTerm}`);
             const response = await axios.get(`https://carnavou.onrender.com/blocos/nomes?nomes=${searchTerm}`);
-            console.log('Dados recebidos:', response.data);
+            console.log('Blocos recebidos:', response.data);
             setBlocos(response.data); // Atualiza o estado com os dados recebidos
         } catch (error) {
-            console.error('Erro ao fazer a requisição:', error);
+            console.error('Erro na requisição:', error);
             setError('Erro ao carregar os blocos');
         } finally {
             setLoading(false);
         }
     };
 
-    React.useEffect(() => {
-        fetchBlocos(''); // Carrega os blocos ao inicializar
-    }, []);
+    const onSave = async (card: CardProps) => {
+        console.log("Botão de salvar pressionado!");
+        console.log("Salvando card onSave home:", card);
+
+        if (saveCard) {
+            try {
+                const salvos: any = await saveCard(card);
+
+            } catch (error) {
+                console.error("Erro ao salvar o card saveCard error:", error, card);
+            }
+        } else {
+            console.error("Função saveCard não está definida!");
+        }
+    };
+
+
+    useEffect(() => {
+        console.log("Cards atualizados:", savedCards);
+    }, [savedCards]);
 
     return (
         <View>
@@ -90,36 +110,42 @@ export default function Home() {
                 </ImageBackground>
 
                 <View style={styles.mainContainer}>
-                    <TextInput
-                        value={text}
-                        onChangeText={setText}
-                        placeholder="Pesquise pelo nome do bloco..."
-                        style={styles.searchInput}
-                    />
-                    <Button
-                        onPress={() => fetchBlocos(text)}
-                        icon="text-search"
-                        mode="contained"
-                    >
-                        Pesquisar
-                    </Button>
-
+                    < View style={styles.searchContainer}>
+                        <TextInput
+                            value={text}
+                            onChangeText={setText}
+                            placeholder="Pesquise pelo nome do bloco..."
+                            style={styles.searchInput}
+                        />
+                        <Button
+                            onPress={() => fetchBlocos(text)}
+                            icon="text-search"
+                            mode="contained"
+                            style={styles.searchButton}
+                        >
+                            Pesquisar
+                        </Button>
+                    </View>
                     {loading && <Text>Carregando blocos...</Text>}
                     {error && <Text style={styles.errorText}>{error}</Text>}
-
-                    {blocos.length > 0 ? (
-                        blocos.map((bloco: any, index: number) => (
-                            <Card
-                                key={index}
-                                nome={bloco.Nome}
-                                data={bloco.Data}
-                                hora={bloco.Concentracao}
-                                endereco={bloco.Local}
-                            />
-                        ))
-                    ) : (
-                        !loading && <Text>Nenhum bloco encontrado.</Text>
-                    )}
+                    <View style={styles.mainContainer}>
+                        <View style={{ flex: 1 }}>
+                            {blocos?.length > 0 ? (
+                                blocos.map((bloco: any, index: number) => (
+                                    <Card
+                                        key={index}
+                                        nome={bloco.Nome}
+                                        data={bloco.Data}
+                                        hora={bloco.Concentracao}
+                                        endereco={bloco.Local}
+                                        onSave={(card) => onSave(card)}
+                                    />
+                                ))
+                            ) : (
+                                !loading && <Text>Nenhum bloco encontrado.</Text>
+                            )}
+                        </View>
+                    </View>
                 </View>
 
                 <View style={[styles.mapsContainer]}>
@@ -150,9 +176,7 @@ export default function Home() {
             </ScrollView>
         </View>
     );
-
 }
-
 
 const styles = StyleSheet.create({
     header: {
@@ -180,8 +204,10 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     mainContainer: {
-        margin: 8,
-        marginBottom: 40
+        marginTop: 20,
+        marginLeft: 16,
+        marginRight: 16,
+        marginBottom: 80,
     },
     searchContainer: {
         display: 'flex',
@@ -199,7 +225,13 @@ const styles = StyleSheet.create({
     },
     primaryButton: {
         borderRadius: 10,
-        backgroundColor: '#682B7D'
+        backgroundColor: '#682B7D',
+    },
+    searchButton: {
+        backgroundColor: '#682B7D',
+        borderRadius: 50,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
     },
     filterButton: {
         flex: 1,

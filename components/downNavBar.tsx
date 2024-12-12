@@ -5,41 +5,39 @@ import Home from './pages/home'
 import MinhaLista from './pages/minhaLista';
 import Sobre from './pages/sobre';
 
-const HomeRoute = () => <Home/>;
-
-const ListRoute = () => <MinhaLista/>;
-
-const AboutRoute = () => <Sobre/>;
+const HomeRoute = () => <Home />;
+const ListRoute = () => <MinhaLista />;
+const AboutRoute = () => <Sobre />;
 
 const DownNavBar = () => {
-  const [index, setIndex] = React.useState(0);
-  const [routes] = React.useState([
-    { key: 'home', title: 'Home', focusedIcon: 'home', unfocusedIcon: 'home-outline'},
-    { key: 'list', title: 'Minha Lista', focusedIcon: 'clipboard' , unfocusedIcon: 'clipboard-outline'},
-    { key: 'about', title: 'Sobre', focusedIcon: 'information', unfocusedIcon: 'information-outline' },
-  ]);
+    const [index, setIndex] = React.useState(0);
+    const [routes] = React.useState([
+        { key: 'home', title: 'Home', focusedIcon: 'home', unfocusedIcon: 'home-outline' },
+        { key: 'list', title: 'Minha Lista', focusedIcon: 'clipboard', unfocusedIcon: 'clipboard-outline' },
+        { key: 'about', title: 'Sobre', focusedIcon: 'information', unfocusedIcon: 'information-outline' },
+    ]);
 
-  const renderScene = BottomNavigation.SceneMap({
-    home: HomeRoute,
-    list: ListRoute,
-    about: AboutRoute,
-  });
+    const renderScene = BottomNavigation.SceneMap({
+        home: HomeRoute,
+        list: ListRoute,
+        about: AboutRoute,
+    });
 
-  return (
-    <BottomNavigation
-      navigationState={{ index, routes }}
-      onIndexChange={setIndex}
-      renderScene={renderScene}
-      //labeled={false}
-      compact= {true}
-      sceneAnimationType='shifting'
-      barStyle={styles.container}
-      style={styles.container}
-      activeIndicatorStyle={styles.activeTab}
-      activeColor="#EBFF01"
-      inactiveColor="#929292" 
-       />
-  );
+    return (
+        <BottomNavigation
+            navigationState={{ index, routes }}
+            onIndexChange={setIndex}
+            renderScene={renderScene}
+            //labeled={false}
+            compact={true}
+            sceneAnimationType='shifting'
+            barStyle={styles.container}
+            style={styles.container}
+            activeIndicatorStyle={styles.activeTab}
+            activeColor="#EBFF01"
+            inactiveColor="#929292" 
+        />
+    );
 };
 
 const styles = StyleSheet.create({

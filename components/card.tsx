@@ -1,47 +1,56 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Linking, Button } from 'react-native';
+import CardContent from 'react-native-paper/lib/typescript/components/Card/CardContent';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-interface CardProps {
+export interface CardProps {
   nome: string;
   data: string;
   hora: string;
   endereco: string;
+  onSave: (cardName: string) => void
 }
 
-const Card: React.FC<CardProps> = ({ nome, data, hora, endereco }) => {
+
+const Card: React.FC<CardProps> = ({ nome, data, hora, endereco, onSave }) => {
   return (
     <View style={styles.card}>
-      <View style={styles.cardTitle}>
-        <Text style={styles.titleText}>{nome}</Text>
-        <TouchableOpacity style={styles.saveButton}>
-          <Text style={styles.saveButtonText}>Salvar</Text>
-          <MaterialCommunityIcons name="plus" size={24} color="#45434C" />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.infoCard}>
-        <View style={styles.infoItem}>
-          <MaterialCommunityIcons name="calendar" size={24} color="#45434C" />
-          <Text style={styles.infoText}>{data}</Text>
-        </View>
-        <View style={styles.infoItem}>
-          <MaterialCommunityIcons name="clock-time-three-outline" size={24} color="#45434C" />
-          <Text style={styles.infoText}>{hora}</Text>
-        </View>
-      </View>
-      <View style={styles.addressCard}>
-        <MaterialCommunityIcons name="map-marker-outline" size={24} color={"#45434C"} />
-        <View style={styles.addressContent}>
-          <TouchableOpacity>
-            <Text
-              style={styles.addressLink}
-              onPress={() => Linking.openURL(`https://www.google.com/maps/search/${endereco}`)}
-            >
-              {endereco}
-            </Text>
+      <View style={styles.cardContent}>
+        <View style={styles.cardTitle}>
+          <Text style={styles.titleText} numberOfLines={2} ellipsizeMode="tail">{nome}</Text>
+          <TouchableOpacity style={styles.saveButton}>
+            <TouchableOpacity onPress={() => onSave(nome)} style={{ backgroundColor: 'transparent' }}>
+              <View style={{ backgroundColor: '#E3EB89', padding: 10 }} />
+            </TouchableOpacity>
+            <MaterialCommunityIcons name="plus" size={24} color="#45434C" />
           </TouchableOpacity>
+
+        </View>
+        <View style={styles.infoCard}>
+          <View style={styles.infoItem}>
+            <MaterialCommunityIcons name="calendar" size={24} color="#45434C" />
+            <Text style={styles.infoText}>{data}</Text>
+          </View>
+          <View style={styles.infoItem}>
+            <MaterialCommunityIcons name="clock-time-three-outline" size={24} color="#45434C" />
+            <Text style={styles.infoText}>{hora}</Text>
+          </View>
+        </View>
+        <View style={styles.addressCard}>
+          <MaterialCommunityIcons name="map-marker-outline" size={24} color={"#45434C"} />
+          <View style={styles.addressContent}>
+            <TouchableOpacity>
+              <Text
+                style={styles.addressLink}
+                onPress={() => Linking.openURL(`https://www.google.com/maps/search/${endereco}`)}
+              >
+                {endereco}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
+
     </View>
   );
 };
@@ -57,6 +66,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
+    height: 200,
+  },
+  cardContent: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
   },
   cardTitle: {
     flexDirection: 'row',
@@ -68,6 +83,8 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#682B7D',
+    flexWrap: 'wrap',
+    maxWidth: '70%',
   },
   saveButton: {
     flexDirection: 'row',
@@ -111,6 +128,7 @@ const styles = StyleSheet.create({
     color: '#000',
     fontSize: 16,
     textDecorationLine: 'underline',
+    maxWidth: '90%'
   },
   addressText: {
     fontSize: 16,

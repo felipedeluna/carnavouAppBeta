@@ -1,15 +1,37 @@
-import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
+import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, ScrollView} from 'react-native'
 import React, { createContext, useState, useContext } from 'react'
+import { hide } from 'expo-router/build/utils/splash'
 
 
 
 
-const Login = () => {
+const Cadastro = () => {
 
+    const [email, setEmail] = useState('')
+    const [pw, setPw] = useState('')
+    const [cnfmPw, setCnfmPw] = useState('')
 
+    
+    const validar = () => {
+        let error = false
+        if(email !== ''){
+            if(pw !== cnfmPw){
+                setPw("As duas senhas devem ser iguais")
+                error = true
+            }
+        }
+        return error
+    }
+    
+    const confirmar = () => {
+        if(validar()){
+            
+        }
+    }
 
     return (
         <View>
+            <ScrollView style={{ marginBottom: 60 }}>
             <View style={styles.header}>
                 <Image
                     source={require('../../assets/images/carnavou-logo-nav.png')}
@@ -25,34 +47,36 @@ const Login = () => {
                         placeholder="Email"
                         keyboardType="email-address"
                         autoCapitalize="none"
+                        
                     />
                     
                     <TextInput
                         style={styles.input}
                         placeholder="Senha"
                         secureTextEntry
+                        value={pw}
+                        onChangeText={setPw}
                     />
-                </View>
-                <View>
-                    <TouchableOpacity>
-                        <Text style={[styles.boldText, styles.forgotPw]}>Esqueci minha senha</Text>
-                    </TouchableOpacity>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Confirme sua senha"
+                        secureTextEntry
+                        value={cnfmPw}
+                        onChangeText={setCnfmPw}
+                    />
                 </View>
                 <Text>{'\n'}</Text>
                 <View style={styles.btnView}>
 
                     <TouchableOpacity style={styles.button}>
-                        <Text style={styles.textBtnEntrar}>Entrar</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.button}>
-                        <Text style={styles.textBtnCadastrar}>Cadastrar</Text>
+                        <Text style={styles.textBtnCadastrar} onPress={confirmar}>Confirmar</Text>
                     </TouchableOpacity>
 
                 </View>
                 <Text>{'\n'}</Text>
                 
             </View>
+            </ScrollView>
 
         </View>
     )
@@ -119,4 +143,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default Login
+export default Cadastro

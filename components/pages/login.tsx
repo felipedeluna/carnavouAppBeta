@@ -9,7 +9,10 @@ const Login = () => {
                     source={require('../../assets/images/carnavou-logo-nav.png')}
                 />
             </View>
+
             <View style={styles.mainView}>
+                <Text style={styles.instructionsText}>Preencha seus dados de acesso</Text>
+                <Text>{'\n'}</Text>
                 <View>
                     <TextInput
                         style={styles.input}
@@ -17,12 +20,19 @@ const Login = () => {
                         keyboardType="email-address"
                         autoCapitalize="none"
                     />
+                    
                     <TextInput
                         style={styles.input}
                         placeholder="Senha"
                         secureTextEntry
                     />
                 </View>
+                <View>
+                    <TouchableOpacity>
+                        <Text style={[styles.boldText, styles.forgotPw]}>Esqueci minha senha</Text>
+                    </TouchableOpacity>
+                </View>
+                <Text>{'\n'}</Text>
                 <View style={styles.btnView}>
 
                     <TouchableOpacity style={styles.button}>
@@ -34,6 +44,8 @@ const Login = () => {
                     </TouchableOpacity>
 
                 </View>
+                <Text>{'\n'}</Text>
+                
             </View>
 
         </View>
@@ -74,7 +86,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-evenly'
     },
-    button:{
+    button: {
         borderRadius: 5,
         borderColor: 'purple',
         borderWidth: 2,
@@ -83,11 +95,22 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     textBtnEntrar: {
-        color: 'white'
+        color: 'white',
+        fontSize: 18,
+        padding: 2
     },
     textBtnCadastrar: {
-        color: 'white'
+        color: 'white',
+        fontSize: 18,
+        padding: 2
     },
+    instructionsText: {
+        fontFamily: 'serif',
+        fontSize: 20
+    },
+    forgotPw: {
+        fontSize: 12
+    }
 })
 
 export default Login

@@ -1,12 +1,7 @@
 import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
-import React, { createContext, useState, useContext } from 'react'
-
-
-
+import React from 'react'
 
 const Login = () => {
-
-
 
     return (
         <View>

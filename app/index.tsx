@@ -11,7 +11,7 @@ export default function App() {
   return (
         <SafeAreaProvider>
             <View style={{flex:1}}>
-                <Cadastro></Cadastro>
+                <Login></Login>
             </View>
         </SafeAreaProvider>  
     );

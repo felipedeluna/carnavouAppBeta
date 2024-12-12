@@ -1,9 +1,5 @@
 import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, ScrollView} from 'react-native'
 import React, { createContext, useState, useContext } from 'react'
-import { hide } from 'expo-router/build/utils/splash'
-
-
-
 
 const Cadastro = () => {
 

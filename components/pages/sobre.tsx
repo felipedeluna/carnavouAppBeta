@@ -158,5 +158,4 @@ const styles = StyleSheet.create({
         textDecorationLine: 'underline',
         paddingRight: 20
     }
-});
 

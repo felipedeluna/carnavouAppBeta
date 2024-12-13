@@ -158,20 +158,7 @@ export default function Home() {
                         </Text>
                     </View>
 
-                    <View style={[styles.mapsContainer]}>
-                        <MapView
-                            style={StyleSheet.absoluteFill}
-                            provider={PROVIDER_GOOGLE}
-                            initialRegion={INITIAL_REGION}
-                            showsUserLocation={true}
-                            showsMyLocationButton={true}
-                            ref={mapRef}
-                        >
-                            {locations.map((marker, index) => (
-                                <Marker key={index} coordinate={marker} />
-                            ))}
-                        </MapView>
-                    </View>
+                    
                 </View>
             </ScrollView>
         </View>
